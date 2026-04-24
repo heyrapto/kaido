@@ -4,23 +4,29 @@ export type AvailabilityCheck = {
   available: boolean;
 };
 
+const RDAP_BASE = "https://rdap.verisign.com/com/v1/domain";
+const TIMEOUT_MS = 5000;
+
 export async function checkDomain(name: string): Promise<AvailabilityCheck> {
-  const key = process.env.NINJA_API_KEY;
-  if (!key) throw new Error("NINJA_API_KEY is not set");
-
   const domain = `${name}.com`;
-  const res = await fetch(`https://api.api-ninjas.com/v1/domain?domain=${domain}`, {
-    headers: { "X-Api-Key": key },
-    cache: "no-store",
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-  if (!res.ok) {
+  try {
+    const res = await fetch(`${RDAP_BASE}/${domain}`, {
+      headers: { Accept: "application/rdap+json" },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    if (res.status === 404) return { name, domain, available: true };
+    if (res.status === 200) return { name, domain, available: false };
+
     const body = await res.text().catch(() => "");
-    throw new Error(`API-Ninjas ${res.status}: ${body.slice(0, 200)}`);
+    throw new Error(`RDAP ${res.status}: ${body.slice(0, 160)}`);
+  } finally {
+    clearTimeout(timer);
   }
-
-  const data = (await res.json()) as { available?: boolean };
-  return { name, domain, available: Boolean(data.available) };
 }
 
 export async function checkDomains(names: string[]): Promise<AvailabilityCheck[]> {

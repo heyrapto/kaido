@@ -3,8 +3,6 @@
 import { useKaidoStore } from "@/app/store/kaido";
 import { ResultCard } from "@/app/components/ResultCard";
 import { Spinner } from "@/app/components/ui/Spinner";
-import { EmptyState } from "@/app/components/ui/EmptyState";
-import { ErrorBanner } from "@/app/components/ui/ErrorBanner";
 
 const MAX_ATTEMPTS = 5;
 const TARGET_AVAILABLE = 3;
@@ -35,7 +33,6 @@ export function ResultsGrid() {
   const status = useKaidoStore((s) => s.status);
   const results = useKaidoStore((s) => s.results);
   const attempts = useKaidoStore((s) => s.attempts);
-  const error = useKaidoStore((s) => s.error);
 
   if (status === "idle") return null;
 
@@ -44,7 +41,6 @@ export function ResultsGrid() {
   const checkingCount = results.filter((r) => r.status === "checking").length;
 
   const showInitialSpinner = status === "generating" && total === 0;
-  const showError = status === "error" && total === 0;
 
   let retryNote = "";
   if (status === "done") {
@@ -66,10 +62,6 @@ export function ResultsGrid() {
       </div>
       <div className="grid gap-[10px] grid-cols-[repeat(auto-fill,minmax(158px,1fr))]">
         {showInitialSpinner && <Spinner label="asking ai for non-boring names…" />}
-        {showError && error && <ErrorBanner message={error} />}
-        {!showError && !showInitialSpinner && total === 0 && status !== "generating" && (
-          <EmptyState message="No good names this round — try a different description." />
-        )}
         {results.map((r) => (
           <ResultCard key={r.name} result={r} />
         ))}

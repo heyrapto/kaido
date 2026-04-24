@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "@/app/components/ui/Toaster";
+import { Modal } from "@/app/components/ui/Modal";
 
 export const metadata: Metadata = {
   title: "Kaido — names worth keeping",
@@ -14,7 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+        <Modal />
+      </body>
     </html>
   );
 }

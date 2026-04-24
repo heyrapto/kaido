@@ -6,13 +6,6 @@ export const runtime = "nodejs";
 type Body = { names?: string[] };
 
 export async function POST(req: Request) {
-  if (!process.env.NINJA_API_KEY) {
-    return NextResponse.json(
-      { error: "NINJA_API_KEY is not set on the server" },
-      { status: 500 },
-    );
-  }
-
   let body: Body;
   try {
     body = (await req.json()) as Body;

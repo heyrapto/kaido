@@ -3,6 +3,7 @@
 import { SearchInput } from "@/app/components/SearchInput";
 import { ExampleChips } from "@/app/components/ExampleChips";
 import { ResultsGrid } from "@/app/components/ResultsGrid";
+import { Footer } from "@/app/components/Footer";
 import { useNameSearch } from "@/app/hooks/useNameSearch";
 
 export default function Page() {
@@ -39,6 +40,8 @@ export default function Page() {
       <ExampleChips />
 
       <ResultsGrid />
+
+      <Footer />
     </main>
   );
 }

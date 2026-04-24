@@ -1,3 +1,5 @@
+import { COMMON_WORDS, KNOWN_BRANDS } from "@/app/lib/blocklist";
+
 const BAD_SUFFIXES = ["ify", "ily", "net", "xpro", "hq"];
 const BAD_WORDS = ["boost", "smart", "tech", "quantum", "nexus", "synergy", "flux"];
 
@@ -9,6 +11,8 @@ export function isGoodName(name: string): boolean {
   if (/[^a-z]/.test(n)) return false;
   if (BAD_SUFFIXES.some((s) => n.endsWith(s))) return false;
   if (BAD_WORDS.some((b) => n.includes(b))) return false;
+  if (COMMON_WORDS.has(n)) return false;
+  if (KNOWN_BRANDS.has(n)) return false;
   return true;
 }
 
