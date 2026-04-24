@@ -10,7 +10,7 @@ export default function Page() {
   const runSearch = useNameSearch();
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-8 pt-8 pb-12">
+    <main className="min-h-screen bg-[var(--bg)] px-8 pt-4 pb-12">
       <h2 className="sr-only">
         Kaido — find available, non-boring domain names for your project using AI
       </h2>

@@ -22,9 +22,8 @@ Strict rules:
 - 1–2 syllables preferred (3 max)
 - No portmanteaus with "ify", "ly", "pro", "boost", "tech", "quantum", "ai" unless genuinely elegant
 - Think: Notion, Linear, Vercel, Arc, Zed, Loom, Figma, Gleam, Kaido — that register (inspiration only, DO NOT suggest these specific names)
-- Real words, invented words, or portmanteaus that feel human and pronounceable
 - No numbers, no hyphens, 3–10 characters each
-- Heavily favour invented words, uncommon compounds, and soft portmanteaus over plain dictionary words — single common English words (flow, hub, spark, pulse, etc.) are already taken and waste the user's time
+- Favour creative transformations over plain dictionary words: reverse a word (canva → avnac), drop inner vowels (tumblr, flickr), phonetic respell (lyft, digg), portmanteau two short words (pinterest = pin + interest), soft foreign suffix (-o, -a, -io, -ora, -elle), or unusual language roots (Japanese, Latin, Greek) — plain common English words (flow, hub, spark, pulse, etc.) are virtually all taken and waste the user's time
 - Absolutely do NOT suggest: ${hardAvoid}
 ${alreadyTried}
 

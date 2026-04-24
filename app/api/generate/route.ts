@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { generateNames } from "@/app/lib/gemini";
 import { filterNames } from "@/app/lib/quality";
+import { creativeVariants } from "@/app/lib/mutate";
+import { pickFromCorpus } from "@/app/lib/corpus";
 import type { QueryType } from "@/app/lib/types";
 
 export const runtime = "nodejs";
+
+const MAX_NAMES = 12;
+const CORPUS_PICKS = 3;
 
 type Body = {
   input?: string;
@@ -32,7 +37,24 @@ export async function POST(req: Request) {
 
   try {
     const raw = await generateNames(input, type, exclude);
-    const names = filterNames(raw, exclude);
+    const fromLLM = filterNames(raw, exclude);
+
+    const variants =
+      type === "competitor" || type === "seed" ? creativeVariants(input) : [];
+    const fromVariants = filterNames(variants, [...exclude, ...fromLLM]);
+
+    const corpusPicks = pickFromCorpus(CORPUS_PICKS, [
+      ...exclude,
+      ...fromLLM,
+      ...fromVariants,
+    ]);
+    const fromCorpus = filterNames(corpusPicks, [
+      ...exclude,
+      ...fromLLM,
+      ...fromVariants,
+    ]);
+
+    const names = [...fromLLM, ...fromVariants, ...fromCorpus].slice(0, MAX_NAMES);
     return NextResponse.json({ names });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
