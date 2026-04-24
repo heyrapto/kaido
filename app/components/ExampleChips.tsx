@@ -18,13 +18,15 @@ export function ExampleChips() {
   const setQueryType = useKaidoStore((s) => s.setQueryType);
 
   return (
-    <div className="chips">
-      <span className="chips-try">try:</span>
+    <div className="mt-4 flex max-w-[560px] flex-wrap gap-[6px]">
+      <span className="mr-[2px] self-center text-[10px] text-[color:var(--placeholder)]">
+        try:
+      </span>
       {CHIPS.map((c) => (
         <button
           key={c.label}
           type="button"
-          className="chip"
+          className="cursor-pointer rounded-[6px] border border-[color:var(--chip-border)] bg-[var(--hover-tint)] px-[10px] py-1 text-[10px] tracking-[0.02em] text-[color:var(--muted)] transition-all hover:bg-[var(--hover-tint-2)] hover:text-[color:var(--text)]"
           onClick={() => {
             setQuery(c.value);
             setQueryType(c.type);

@@ -9,8 +9,10 @@ import { ErrorBanner } from "@/app/components/ui/ErrorBanner";
 const MAX_ATTEMPTS = 5;
 const TARGET_AVAILABLE = 3;
 
+type Status = ReturnType<typeof useKaidoStore.getState>["status"];
+
 function buildLabel(
-  status: ReturnType<typeof useKaidoStore.getState>["status"],
+  status: Status,
   total: number,
   availableCount: number,
   checkingCount: number,
@@ -45,9 +47,7 @@ export function ResultsGrid() {
   const showError = status === "error" && total === 0;
 
   let retryNote = "";
-  if (status === "error" && error) {
-    retryNote = "";
-  } else if (status === "done") {
+  if (status === "done") {
     retryNote = attempts > 1 ? `Found after ${attempts} rounds of generation.` : "";
   } else if (
     status === "checking" &&
@@ -60,11 +60,11 @@ export function ResultsGrid() {
   }
 
   return (
-    <div className="section" style={{ marginTop: "2rem" }}>
-      <div className="slabel">
+    <div className="mt-8 max-w-[560px]">
+      <div className="mb-4 text-[10px] uppercase tracking-[0.1em] text-[color:var(--muted)]">
         {buildLabel(status, total, availableCount, checkingCount)}
       </div>
-      <div className="grid">
+      <div className="grid gap-[10px] grid-cols-[repeat(auto-fill,minmax(158px,1fr))]">
         {showInitialSpinner && <Spinner label="asking ai for non-boring names…" />}
         {showError && error && <ErrorBanner message={error} />}
         {!showError && !showInitialSpinner && total === 0 && status !== "generating" && (
@@ -74,7 +74,11 @@ export function ResultsGrid() {
           <ResultCard key={r.name} result={r} />
         ))}
       </div>
-      {retryNote && <div className="retry-note">{retryNote}</div>}
+      {retryNote && (
+        <div className="mt-4 text-[11px] italic text-[color:var(--subtle)]">
+          {retryNote}
+        </div>
+      )}
     </div>
   );
 }

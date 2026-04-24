@@ -9,38 +9,26 @@ export default function Page() {
   const runSearch = useNameSearch();
 
   return (
-    <main
-      style={{
-        background: "var(--bg)",
-        minHeight: "100vh",
-        padding: "2rem 2rem 3rem",
-      }}
-    >
+    <main className="min-h-screen bg-[var(--bg)] px-8 pt-8 pb-12">
       <h2 className="sr-only">
         Kaido — find available, non-boring domain names for your project using AI
       </h2>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "2.5rem",
-          maxWidth: 560,
-        }}
-      >
-        <div className="logo">
-          kaido<span className="logo-dot">.</span>
+      <div className="mb-10 flex max-w-full items-center justify-between">
+        <div className="font-[family-name:var(--font-display)] text-[24px] font-bold italic tracking-[-0.03em] text-[color:var(--text)]">
+          kaido<span className="text-[color:var(--accent)]">.</span>
         </div>
-        <div className="topbar-hint">names worth keeping</div>
+        <div className="text-[10px] uppercase tracking-[0.08em] text-[color:var(--subtle)]">
+          names worth keeping
+        </div>
       </div>
 
-      <div style={{ marginBottom: "2rem", maxWidth: 560 }}>
-        <h1 className="hero-title">
+      <div className="mb-8 max-w-[560px]">
+        <h1 className="font-[family-name:var(--font-display)] max-w-[440px] text-[36px] font-medium leading-[1.12] text-[color:var(--text)]">
           Stop naming it<br />
-          <em>TechBoostifyly.</em>
+          <em className="italic text-[color:var(--accent)]">TechBoostifyly.</em>
         </h1>
-        <p className="hero-sub">
+        <p className="mt-[0.65rem] max-w-[380px] text-[12px] leading-[1.8] text-[color:var(--muted)]">
           Describe your idea, drop a competitor, or paste a name you like. AI finds
           you something good — then checks if it&apos;s actually free.
         </p>

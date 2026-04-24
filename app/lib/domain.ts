@@ -15,7 +15,8 @@ export async function checkDomain(name: string): Promise<AvailabilityCheck> {
   });
 
   if (!res.ok) {
-    throw new Error(`API-Ninjas returned ${res.status}`);
+    const body = await res.text().catch(() => "");
+    throw new Error(`API-Ninjas ${res.status}: ${body.slice(0, 200)}`);
   }
 
   const data = (await res.json()) as { available?: boolean };
@@ -23,5 +24,10 @@ export async function checkDomain(name: string): Promise<AvailabilityCheck> {
 }
 
 export async function checkDomains(names: string[]): Promise<AvailabilityCheck[]> {
-  return Promise.all(names.map((n) => checkDomain(n)));
+  const settled = await Promise.allSettled(names.map((n) => checkDomain(n)));
+  return settled.map((r, i) => {
+    if (r.status === "fulfilled") return r.value;
+    console.error(`[availability] ${names[i]}.com check failed:`, r.reason);
+    return { name: names[i], domain: `${names[i]}.com`, available: false };
+  });
 }

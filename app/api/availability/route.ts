@@ -6,6 +6,13 @@ export const runtime = "nodejs";
 type Body = { names?: string[] };
 
 export async function POST(req: Request) {
+  if (!process.env.NINJA_API_KEY) {
+    return NextResponse.json(
+      { error: "NINJA_API_KEY is not set on the server" },
+      { status: 500 },
+    );
+  }
+
   let body: Body;
   try {
     body = (await req.json()) as Body;
@@ -25,6 +32,7 @@ export async function POST(req: Request) {
     const results = await checkDomains(names);
     return NextResponse.json({ results });
   } catch (err) {
+    console.error("[availability] route failed:", err);
     const message = err instanceof Error ? err.message : "Availability check failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }

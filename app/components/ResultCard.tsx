@@ -9,9 +9,9 @@ const PILL_LABEL = {
 } as const;
 
 const PILL_CLASS = {
-  checking: "p-checking",
-  available: "p-avail",
-  taken: "p-taken",
+  checking: "pill-checking",
+  available: "pill-avail",
+  taken: "pill-taken",
 } as const;
 
 export function ResultCard({ result }: { result: DomainResult }) {
@@ -19,15 +19,26 @@ export function ResultCard({ result }: { result: DomainResult }) {
   const isAvail = status === "available";
 
   return (
-    <div className={`ncard ${isAvail ? "avail" : ""}`.trim()}>
-      <div className="dname">
+    <div
+      className={[
+        "rounded-[11px] border p-4 transition-colors",
+        isAvail
+          ? "border-[color:var(--available-border)] bg-[var(--available-surface)]"
+          : "border-[color:var(--border)] bg-[var(--surface)]",
+      ].join(" ")}
+    >
+      <div className="font-[family-name:var(--font-display)] text-[18px] font-medium text-[color:var(--text)]">
         {name}
-        <span className="dext">.com</span>
+        <span className="text-[13px] text-[color:var(--subtle)]">.com</span>
       </div>
-      <span className={`pill ${PILL_CLASS[status]}`}>{PILL_LABEL[status]}</span>
+      <span
+        className={`mt-[9px] inline-block rounded-[20px] px-[9px] py-[2px] text-[10px] tracking-[0.03em] ${PILL_CLASS[status]}`}
+      >
+        {PILL_LABEL[status]}
+      </span>
       {isAvail && (
         <a
-          className="reg-link"
+          className="mt-[6px] block text-[10px] text-[color:var(--accent)] no-underline hover:underline"
           href={`https://www.namecheap.com/domains/registration/results/?domain=${name}.com`}
           target="_blank"
           rel="noopener noreferrer"
