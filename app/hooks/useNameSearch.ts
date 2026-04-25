@@ -5,39 +5,41 @@ import { useKaidoStore } from "@/app/store/kaido";
 import type { QueryType } from "@/app/lib/types";
 import { toast } from "@/app/store/toast";
 import { modal } from "@/app/store/modal";
+import { generateNames } from "@/app/lib/gemini";
+import { generateNamesViaPuter } from "@/app/lib/puter";
+import { augmentNames } from "@/app/lib/augment";
 
 const MAX_ATTEMPTS = 5;
 const TARGET_AVAILABLE = 3;
 const CONFIRM_AFTER = 3;
 
-type GenerateResponse = { names: string[]; error?: string };
 type AvailabilityResponse = {
   results: { name: string; domain: string; available: boolean }[];
   error?: string;
 };
 
-function looksLikeConfigError(message: string): boolean {
-  const m = message.toLowerCase();
-  return (
-    m.includes("api_key is not set") ||
-    m.includes("api key is not set") ||
-    m.includes("gemini_api_key")
-  );
-}
+type Source = "gemini" | "grok";
 
 async function requestNames(
   input: string,
   type: QueryType,
   exclude: string[],
-): Promise<string[]> {
-  const res = await fetch("/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ input, type, exclude }),
-  });
-  const data = (await res.json()) as GenerateResponse;
-  if (!res.ok) throw new Error(data.error ?? "Failed to generate names");
-  return data.names ?? [];
+): Promise<{ names: string[]; source: Source }> {
+  let primaryErr: unknown = null;
+  try {
+    const llm = await generateNames(input, type, exclude);
+    if (llm.length > 0) {
+      return { names: augmentNames(input, type, exclude, llm), source: "gemini" };
+    }
+  } catch (err) {
+    primaryErr = err;
+  }
+  try {
+    const llm = await generateNamesViaPuter(input, type, exclude);
+    return { names: augmentNames(input, type, exclude, llm), source: "grok" };
+  } catch (fallbackErr) {
+    throw primaryErr ?? fallbackErr;
+  }
 }
 
 async function requestAvailability(
@@ -71,6 +73,7 @@ export function useNameSearch() {
     try {
       let availableCount = 0;
       let attempt = 0;
+      let notifiedPuterFallback = false;
 
       while (attempt < MAX_ATTEMPTS && availableCount < TARGET_AVAILABLE) {
         // After N rounds with not enough availability, ask before burning more
@@ -92,7 +95,19 @@ export function useNameSearch() {
         attempt += 1;
 
         const exclude = useKaidoStore.getState().allTried;
-        const names = await requestNames(query, state.queryType, exclude);
+        const { names, source } = await requestNames(
+          query,
+          state.queryType,
+          exclude,
+        );
+
+        if (source === "grok" && !notifiedPuterFallback) {
+          notifiedPuterFallback = true;
+          toast.info(
+            "Switched to Grok fallback",
+            "Gemini-via-Puter failed — using Grok-via-Puter for this round.",
+          );
+        }
 
         if (names.length === 0) {
           if (attempt === 1) {
@@ -130,15 +145,7 @@ export function useNameSearch() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong.";
       setStatus("error");
-
-      if (looksLikeConfigError(message)) {
-        modal.error(
-          "Server is missing an API key",
-          "Add GEMINI_API_KEY to .env.local and restart the dev server.",
-        );
-      } else {
-        toast.error("Something went wrong", message);
-      }
+      toast.error("Something went wrong", message);
     }
   }, [startRun, addCandidates, setCardStatus, incrementAttempt, setDone, setStatus]);
 }

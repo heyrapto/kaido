@@ -8,17 +8,16 @@ import {
   parseNamesFromResponse,
 } from "@/app/lib/puterClient";
 
-// Tried in order, first non-empty wins. Fastest models first so a typical
-// search returns from the first attempt; the rest only run if a model
-// hangs / errors / returns nothing parseable.
-const GEMINI_MODELS = [
-  "gemini-2.5-flash-lite",
-  "gemini-2.5-flash",
-  "gemini-3-flash-preview",
-  "gemini-2.0-flash",
+// Grok-via-Puter fallback. Used only when every Gemini model in gemini.ts
+// has failed (rate limit, model error, etc.). Different provider so we're
+// not just hitting the same upstream that just denied us.
+const GROK_MODELS = [
+  "x-ai/grok-4-fast-non-reasoning",
+  "x-ai/grok-4-1-fast",
+  "x-ai/grok-3-mini",
 ];
 
-export async function generateNames(
+export async function generateNamesViaPuter(
   input: string,
   type: QueryType,
   exclude: string[],
@@ -27,7 +26,7 @@ export async function generateNames(
   const prompt = buildPrompt(input, type, exclude);
 
   let lastErr: unknown = null;
-  for (const model of GEMINI_MODELS) {
+  for (const model of GROK_MODELS) {
     try {
       const response = await chatWithTimeout(puter, prompt, model);
       const names = parseNamesFromResponse(response);

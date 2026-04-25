@@ -59,7 +59,7 @@ export function Toast({ toast }: { toast: ToastType }) {
           {toast.title}
         </div>
         {toast.description && (
-          <div className="mt-[2px] text-[11px] leading-[1.55] text-[color:var(--muted)] truncate">
+          <div className="mt-[2px] text-[11px] leading-[1.55] text-[color:var(--muted)]">
             {toast.description}
           </div>
         )}
