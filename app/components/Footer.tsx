@@ -16,7 +16,7 @@ const SOCIALS: Social[] = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 max-w-[560px] border-t border-[color:var(--border-soft)] pt-5">
+    <footer className="mt-8 border-t border-[color:var(--border-soft)] py-6">
       <div className="flex items-center justify-between gap-4">
         <span className="font-[family-name:var(--font-display)] text-[12px] italic text-[color:var(--muted)]">
           made by{" "}

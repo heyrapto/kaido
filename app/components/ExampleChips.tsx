@@ -1,51 +1,51 @@
 "use client";
 
+import {
+  LuFileText,
+  LuWallet,
+  LuUsers,
+  LuLeaf,
+  LuLayers,
+  LuMoon,
+} from "react-icons/lu";
+import type { ComponentType } from "react";
 import { useKaidoStore } from "@/app/store/kaido";
 import type { QueryType } from "@/app/lib/types";
 
-type Chip = { label: string; value: string };
-
-const CHIPS_BY_MODE: Record<QueryType, Chip[]> = {
-  idea: [
-    { label: "minimal markdown editor", value: "a minimal markdown editor for developers" },
-    { label: "budgeting for freelancers", value: "a budgeting app for freelancers" },
-    { label: "tiny crm for solo founders", value: "a lightweight CRM for solo founders" },
-    { label: "habit tracker", value: "a quiet, gentle habit tracker" },
-  ],
-  competitor: [
-    { label: "Linear", value: "Linear" },
-    { label: "Notion", value: "Notion" },
-    { label: "Vercel", value: "Vercel" },
-    { label: "Figma", value: "Figma" },
-    { label: "Loom", value: "Loom" },
-  ],
-  seed: [
-    { label: "arc", value: "arc" },
-    { label: "drift", value: "drift" },
-    { label: "luna", value: "luna" },
-    { label: "fern", value: "fern" },
-    { label: "ember", value: "ember" },
-  ],
+type Chip = {
+  label: string;
+  value: string;
+  type: QueryType;
+  Icon: ComponentType<{ size?: number; className?: string }>;
 };
 
+const CHIPS: Chip[] = [
+  { label: "Markdown editor", value: "a minimal markdown editor for developers", type: "idea", Icon: LuFileText },
+  { label: "Budget app", value: "a budgeting app for freelancers", type: "idea", Icon: LuWallet },
+  { label: "CRM tool", value: "a lightweight CRM for solo founders", type: "idea", Icon: LuUsers },
+  { label: "Habit tracker", value: "a quiet, gentle habit tracker", type: "idea", Icon: LuLeaf },
+  { label: "Linear-like", value: "Linear", type: "competitor", Icon: LuLayers },
+  { label: "Vibe of luna", value: "luna", type: "seed", Icon: LuMoon },
+];
+
 export function ExampleChips() {
-  const queryType = useKaidoStore((s) => s.queryType);
   const setQuery = useKaidoStore((s) => s.setQuery);
-  const chips = CHIPS_BY_MODE[queryType];
+  const setQueryType = useKaidoStore((s) => s.setQueryType);
 
   return (
-    <div className="mt-4 flex max-w-[560px] flex-wrap gap-[6px]">
-      <span className="mr-[2px] self-center text-[10px] text-[color:var(--placeholder)]">
-        try:
-      </span>
-      {chips.map((c) => (
+    <div className="mt-6 flex w-full flex-wrap items-center justify-center gap-3">
+      {CHIPS.map(({ label, value, type, Icon }) => (
         <button
-          key={c.label}
+          key={label}
           type="button"
-          className="cursor-pointer rounded-[6px] border border-[color:var(--chip-border)] bg-[var(--hover-tint)] px-[10px] py-1 text-[10px] tracking-[0.02em] text-[color:var(--muted)] transition-all hover:bg-[var(--hover-tint-2)] hover:text-[color:var(--text)]"
-          onClick={() => setQuery(c.value)}
+          onClick={() => {
+            setQueryType(type);
+            setQuery(value);
+          }}
+          className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-[color:var(--chip-border)] bg-[color:var(--surface)]/60 px-[14px] text-[12px] text-[color:var(--text)] transition-colors hover:bg-[color:var(--surface)]"
         >
-          {c.label}
+          <Icon size={14} className="text-[color:var(--muted)]" />
+          <span>{label}</span>
         </button>
       ))}
     </div>

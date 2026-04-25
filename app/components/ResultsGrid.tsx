@@ -83,7 +83,7 @@ export function ResultsGrid() {
   }
 
   return (
-    <div className="mt-8 max-w-[560px]">
+    <div className="mt-12 w-full text-left">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="text-[10px] uppercase tracking-[0.1em] text-[color:var(--muted)]">
           {buildLabel(status, total, availableCount, checkingCount)}
@@ -103,7 +103,7 @@ export function ResultsGrid() {
           </div>
         )}
       </div>
-      <div className="grid gap-[10px] grid-cols-[repeat(auto-fill,minmax(158px,1fr))]">
+      <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(180px,1fr))]">
         {showInitialSpinner && <Spinner label="asking ai for non-boring names…" />}
         {visible.map((r) => (
           <ResultCard key={r.name} result={r} />

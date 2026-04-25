@@ -1,25 +1,33 @@
 "use client";
 
+import {
+  LuLightbulb,
+  LuTarget,
+  LuSprout,
+  LuArrowUp,
+  LuMic,
+} from "react-icons/lu";
+import type { ComponentType } from "react";
 import { useKaidoStore } from "@/app/store/kaido";
 import type { QueryType } from "@/app/lib/types";
-import { Button } from "@/app/components/ui/Button";
 
 const PLACEHOLDERS: Record<QueryType, string> = {
-  idea: "e.g. a tool that helps developers write cleaner commit messages...",
-  competitor: "e.g. Linear, Vercel, Notion...",
-  seed: "e.g. drift, luna, fern...",
+  idea: "Describe your idea — e.g. a tool that helps developers write cleaner commit messages…",
+  competitor: "Drop a competitor — e.g. Linear, Vercel, Notion…",
+  seed: "Paste a seed name — e.g. drift, luna, fern…",
 };
 
-const TABS: { value: QueryType; label: string }[] = [
-  { value: "idea", label: "idea" },
-  { value: "competitor", label: "competitor" },
-  { value: "seed", label: "seed name" },
-];
+type ModeDef = {
+  value: QueryType;
+  label: string;
+  Icon: ComponentType<{ size?: number; className?: string }>;
+};
 
-const TAB_BASE =
-  "text-[11px] px-[13px] py-[5px] rounded-[7px] border border-transparent cursor-pointer transition-all tracking-[0.01em]";
-const TAB_INACTIVE =
-  "bg-transparent text-[color:var(--subtle)] hover:bg-[var(--hover-tint)] hover:text-[color:var(--text)]";
+const MODES: ModeDef[] = [
+  { value: "idea", label: "Idea", Icon: LuLightbulb },
+  { value: "competitor", label: "Competitor", Icon: LuTarget },
+  { value: "seed", label: "Seed name", Icon: LuSprout },
+];
 
 export function SearchInput({ onSubmit }: { onSubmit: () => void }) {
   const query = useKaidoStore((s) => s.query);
@@ -32,41 +40,80 @@ export function SearchInput({ onSubmit }: { onSubmit: () => void }) {
   const canSubmit = query.trim().length > 0 && !busy;
 
   return (
-    <div className="max-w-[560px] rounded-[14px] border border-[color:var(--border)] bg-[var(--surface)] p-5">
-      <div className="mb-4 flex gap-1">
-        {TABS.map((t) => (
+    <div
+      id="search"
+      className="relative w-full overflow-hidden rounded-[16px] bg-[color:var(--prompt-bg)] shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_18px_40px_-20px_rgba(28,22,18,0.35)]"
+    >
+      <div className="flex min-h-[150px] items-start gap-2 px-5 pt-5">
+        <textarea
+          className="prompt-textarea h-[110px] w-full resize-none bg-transparent text-[15px] leading-[1.65] text-[color:var(--prompt-text)] outline-none placeholder:text-[color:var(--prompt-muted)]"
+          placeholder={PLACEHOLDERS[queryType]}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && canSubmit) {
+              e.preventDefault();
+              onSubmit();
+            }
+          }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between px-4 pb-4">
+        <div className="flex items-center gap-2">
+          {MODES.map(({ value, label, Icon }) => {
+            const active = queryType === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setQueryType(value)}
+                aria-pressed={active}
+                title={label}
+                className={[
+                  "inline-flex h-9 items-center gap-2 rounded-[10px] border px-3 text-[12px] transition-all",
+                  active
+                    ? "border-white/15 bg-[color:var(--prompt-bg-alt)] text-[color:var(--prompt-text)]"
+                    : "border-transparent bg-white/[0.04] text-[color:var(--prompt-muted)] hover:bg-white/[0.07] hover:text-[color:var(--prompt-text)]",
+                ].join(" ")}
+              >
+                <Icon size={14} />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="hidden text-[10px] tracking-[0.06em] text-[color:var(--prompt-muted)] md:inline">
+            {query.length > 0 ? `${query.length} chars` : "⌘ + ↵"}
+          </span>
           <button
-            key={t.value}
             type="button"
-            className={`${TAB_BASE} ${queryType === t.value ? "tab-on" : TAB_INACTIVE}`}
-            onClick={() => setQueryType(t.value)}
+            disabled
+            aria-label="Voice input (coming soon)"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-white/[0.04] text-[color:var(--prompt-muted)] opacity-60"
           >
-            {t.label}
+            <LuMic size={14} />
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={!canSubmit}
+            aria-label="Find names"
+            className={[
+              "inline-flex h-9 w-9 items-center justify-center rounded-[10px] transition-all",
+              canSubmit
+                ? "bg-[color:var(--prompt-text)] text-[color:var(--prompt-bg)] hover:opacity-90"
+                : "bg-white/[0.06] text-[color:var(--prompt-muted)]",
+            ].join(" ")}
+          >
+            <LuArrowUp size={15} />
+          </button>
+        </div>
       </div>
-      <div className="mb-4 h-px bg-[var(--border-soft)]" />
-      <textarea
-        className="min-h-[72px] w-full resize-none border-none bg-transparent text-[13px] leading-[1.75] text-[color:var(--text)] outline-none placeholder:text-[color:var(--placeholder)]"
-        rows={3}
-        placeholder={PLACEHOLDERS[queryType]}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && canSubmit) {
-            e.preventDefault();
-            onSubmit();
-          }
-        }}
-      />
-      <div className="mt-3 flex items-center justify-between border-t border-[color:var(--border-soft)] pt-3">
-        <span className="text-[10px] text-[color:var(--placeholder)]">
-          {query.length > 0 ? `${query.length} chars` : ""}
-        </span>
-        <Button onClick={onSubmit} disabled={!canSubmit}>
-          find names →
-        </Button>
-      </div>
+
+      <div className="h-3 w-full bg-[color:var(--prompt-bg-alt)]/60 [mask-image:radial-gradient(circle_at_center,#000_30%,transparent_75%)]" />
     </div>
   );
 }
