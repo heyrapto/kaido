@@ -44,7 +44,7 @@ export function Toast({ toast }: { toast: ToastType }) {
 
   return (
     <div
-      className={`glass flex w-full items-start gap-3 rounded-[12px] px-4 py-3 pointer-events-auto ${exiting ? "toast-exit" : "toast-enter"}`}
+      className={`glass flex w-full items-start gap-3 rounded-[12px] px-4 py-3 pointer-events-auto overflow-hidden ${exiting ? "toast-exit" : "toast-enter"}`}
       onAnimationEnd={onAnimEnd}
       role={toast.variant === "error" ? "alert" : "status"}
     >
@@ -59,7 +59,7 @@ export function Toast({ toast }: { toast: ToastType }) {
           {toast.title}
         </div>
         {toast.description && (
-          <div className="mt-[2px] text-[11px] leading-[1.55] text-[color:var(--muted)]">
+          <div className="mt-[2px] text-[11px] leading-[1.55] text-[color:var(--muted)] truncate">
             {toast.description}
           </div>
         )}
