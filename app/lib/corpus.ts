@@ -69,3 +69,82 @@ export function pickFromCorpus(count: number, exclude: string[] = []): string[] 
   }
   return shuffled.slice(0, count);
 }
+
+// === Invented names — prefix + suffix syllable bank ===========================
+//
+// Domain squatters can't pre-register what doesn't exist yet. By combining a
+// prefix syllable with a suffix syllable at runtime we generate names that
+// have never been suggested before: kryona, lumara, vorelle, taloria, zenari.
+// Hit rate against RDAP is dramatically higher than dictionary words.
+
+const PREFIXES: readonly string[] = [
+  // Vowel-led (rare, exotic feel)
+  "ar", "ay", "ai", "al", "am", "an", "as", "ax", "az",
+  "ec", "el", "em", "en", "er", "ev",
+  "ic", "iv", "ix", "ir",
+  "ob", "ol", "om", "on", "or",
+  // Latinate / Greek consonant-led
+  "bra", "bre", "bri",
+  "cal", "cam", "car",
+  "dal", "dar", "del", "dor",
+  "eli", "era",
+  "fae", "fal", "fer",
+  "gae", "gal", "gor",
+  "har", "hel", "hyl",
+  "kel", "ker", "kor", "kry", "kyr",
+  "lan", "lar", "lem", "lis", "lor", "lum", "lyr",
+  "mal", "mar", "mel", "mir", "mor", "myr",
+  "nel", "ner", "nia", "nor", "nyx",
+  "ola", "ora",
+  "pae", "pen", "per", "pra", "pyr",
+  "rai", "ran", "rem", "ria", "ros",
+  "sael", "sar", "sel", "ser", "sha", "sho", "sym",
+  "tal", "tel", "ter", "tha", "tho", "tor", "tyr",
+  "vai", "val", "vel", "ver", "vir", "vor", "vyr",
+  "xan", "xel", "xyr",
+  "yel", "yor", "yth",
+  "zal", "zen", "zep", "zer",
+];
+
+const SUFFIXES: readonly string[] = [
+  // Single vowel — short, soft endings
+  "a", "o", "i", "e",
+  // Two-char crisp endings
+  "as", "is", "ix", "us", "on", "an", "in", "yn",
+  // Three-char rolling endings
+  "ana", "ari", "aro", "ela", "ena", "eri", "ero",
+  "ina", "iro", "iva",
+  "ola", "ona", "ora", "osa", "ota", "ova",
+  "una", "ura",
+  // Four-char ornate endings
+  "elle", "alle", "etta", "ovi",
+  "ynth", "ynx",
+  // Greco-Latin
+  "ius", "eus", "atta", "aris",
+];
+
+export function pickInvented(count: number, exclude: string[] = []): string[] {
+  const tried = new Set(exclude.map((x) => x.toLowerCase()));
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const cap = count * 30;
+  let attempts = 0;
+  while (out.length < count && attempts < cap) {
+    attempts++;
+    const p = PREFIXES[Math.floor(Math.random() * PREFIXES.length)];
+    const s = SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)];
+    const name = (p + s).toLowerCase();
+    // 6–10 char window: shorter combos are saturated; longer ones survive.
+    if (name.length < 6 || name.length > 10) continue;
+    if (seen.has(name) || tried.has(name)) continue;
+    if (!isPronounceable(name)) continue;
+    // Avoid awkward 3+ consonant clusters from a consonant-ending prefix
+    // meeting a consonant-leading suffix (e.g. "kor" + "ynth" = "korynth" — fine,
+    // but "kry" + "ynth" = "kryynth" — reject).
+    if (/[^aeiouy]{3,}/.test(name)) continue;
+    if (/[aeiouy]{3,}/.test(name)) continue;
+    seen.add(name);
+    out.push(name);
+  }
+  return out;
+}

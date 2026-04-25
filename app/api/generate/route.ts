@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { generateNames } from "@/app/lib/gemini";
 import { filterNames } from "@/app/lib/quality";
 import { creativeVariants } from "@/app/lib/mutate";
-import { pickFromCorpus } from "@/app/lib/corpus";
+import { pickFromCorpus, pickInvented } from "@/app/lib/corpus";
 import type { QueryType } from "@/app/lib/types";
 
 export const runtime = "nodejs";
 
 const MAX_NAMES = 12;
-const CORPUS_PICKS = 3;
+const CORPUS_PICKS = 2;
+const INVENTED_PICKS = 3;
 
 type Body = {
   input?: string;
@@ -43,18 +44,17 @@ export async function POST(req: Request) {
       type === "competitor" || type === "seed" ? creativeVariants(input) : [];
     const fromVariants = filterNames(variants, [...exclude, ...fromLLM]);
 
-    const corpusPicks = pickFromCorpus(CORPUS_PICKS, [
-      ...exclude,
-      ...fromLLM,
-      ...fromVariants,
-    ]);
-    const fromCorpus = filterNames(corpusPicks, [
-      ...exclude,
-      ...fromLLM,
-      ...fromVariants,
-    ]);
+    const usedSoFar = [...exclude, ...fromLLM, ...fromVariants];
+    const corpusPicks = pickFromCorpus(CORPUS_PICKS, usedSoFar);
+    const fromCorpus = filterNames(corpusPicks, usedSoFar);
 
-    const names = [...fromLLM, ...fromVariants, ...fromCorpus].slice(0, MAX_NAMES);
+    const inventedPicks = pickInvented(INVENTED_PICKS, [...usedSoFar, ...fromCorpus]);
+    const fromInvented = filterNames(inventedPicks, [...usedSoFar, ...fromCorpus]);
+
+    const names = [...fromLLM, ...fromVariants, ...fromCorpus, ...fromInvented].slice(
+      0,
+      MAX_NAMES,
+    );
     return NextResponse.json({ names });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";

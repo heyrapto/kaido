@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useKaidoStore } from "@/app/store/kaido";
 import { ResultCard } from "@/app/components/ResultCard";
 import { Spinner } from "@/app/components/ui/Spinner";
@@ -8,6 +9,18 @@ const MAX_ATTEMPTS = 5;
 const TARGET_AVAILABLE = 3;
 
 type Status = ReturnType<typeof useKaidoStore.getState>["status"];
+type Filter = "all" | "available" | "taken";
+
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "all", label: "all" },
+  { value: "available", label: "available" },
+  { value: "taken", label: "taken" },
+];
+
+const FILTER_BASE =
+  "text-[10px] px-[9px] py-[3px] rounded-[6px] border border-transparent cursor-pointer transition-all tracking-[0.02em]";
+const FILTER_INACTIVE =
+  "bg-transparent text-[color:var(--subtle)] hover:bg-[var(--hover-tint)] hover:text-[color:var(--text)]";
 
 function buildLabel(
   status: Status,
@@ -34,6 +47,8 @@ export function ResultsGrid() {
   const results = useKaidoStore((s) => s.results);
   const attempts = useKaidoStore((s) => s.attempts);
 
+  const [filter, setFilter] = useState<Filter>("all");
+
   if (status === "idle") return null;
 
   const total = results.length;
@@ -41,6 +56,18 @@ export function ResultsGrid() {
   const checkingCount = results.filter((r) => r.status === "checking").length;
 
   const showInitialSpinner = status === "generating" && total === 0;
+
+  const visible =
+    filter === "all"
+      ? results
+      : results.filter((r) =>
+          filter === "available"
+            ? r.status === "available"
+            : r.status === "taken",
+        );
+
+  const showFilter = total > 0;
+  const filterEmpty = total > 0 && visible.length === 0 && !showInitialSpinner;
 
   let retryNote = "";
   if (status === "done") {
@@ -57,14 +84,35 @@ export function ResultsGrid() {
 
   return (
     <div className="mt-8 max-w-[560px]">
-      <div className="mb-4 text-[10px] uppercase tracking-[0.1em] text-[color:var(--muted)]">
-        {buildLabel(status, total, availableCount, checkingCount)}
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="text-[10px] uppercase tracking-[0.1em] text-[color:var(--muted)]">
+          {buildLabel(status, total, availableCount, checkingCount)}
+        </div>
+        {showFilter && (
+          <div className="flex gap-[2px]">
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                className={`${FILTER_BASE} ${filter === f.value ? "tab-on" : FILTER_INACTIVE}`}
+                onClick={() => setFilter(f.value)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="grid gap-[10px] grid-cols-[repeat(auto-fill,minmax(158px,1fr))]">
         {showInitialSpinner && <Spinner label="asking ai for non-boring names…" />}
-        {results.map((r) => (
+        {visible.map((r) => (
           <ResultCard key={r.name} result={r} />
         ))}
+        {filterEmpty && (
+          <div className="col-span-full py-2 text-[11px] italic text-[color:var(--subtle)]">
+            no {filter} names {status === "checking" ? "yet" : "in this batch"}.
+          </div>
+        )}
       </div>
       {retryNote && (
         <div className="mt-4 text-[11px] italic text-[color:var(--subtle)]">
