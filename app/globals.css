@@ -54,7 +54,7 @@
 
 /* Grid corner-bracket background — faint blueprint marks */
 .grid-bracket-bg {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g fill='none' stroke='%231C1612' stroke-opacity='0.18' stroke-width='1'><path d='M0 8 L0 0 L8 0'/><path d='M192 0 L200 0 L200 8'/><path d='M200 192 L200 200 L192 200'/><path d='M8 200 L0 200 L0 192'/></g></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><g fill='none' stroke='%231C1612' stroke-opacity='0.32' stroke-width='1'><path d='M0 10 L0 0 L10 0'/><path d='M170 0 L180 0 L180 10'/><path d='M180 170 L180 180 L170 180'/><path d='M10 180 L0 180 L0 170'/></g></svg>");
   background-repeat: repeat;
   background-position: 0 0;
 }

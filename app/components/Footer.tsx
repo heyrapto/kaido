@@ -1,4 +1,9 @@
-import { FaXTwitter, FaLinkedinIn, FaFacebookF, FaGithub } from "react-icons/fa6";
+import {
+  FaXTwitter,
+  FaLinkedinIn,
+  FaFacebookF,
+  FaGithub,
+} from "react-icons/fa6";
 import type { ComponentType } from "react";
 
 type Social = {
@@ -9,9 +14,17 @@ type Social = {
 
 const SOCIALS: Social[] = [
   { label: "X", href: "https://x.com/heyrapto", Icon: FaXTwitter },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/caleb-kalejaiye-5a0730403/", Icon: FaLinkedinIn },
-  { label: "Facebook", href: "https://facebook.com/heyrapto", Icon: FaFacebookF },
-  { label: "Repository", href: "https://github.com/heyrapto/kaido", Icon: FaGithub },
+  // { label: "LinkedIn", href: "https://www.linkedin.com/in/caleb-kalejaiye-5a0730403/", Icon: FaLinkedinIn },
+  {
+    label: "Facebook",
+    href: "https://facebook.com/heyrapto",
+    Icon: FaFacebookF,
+  },
+  {
+    label: "Repository",
+    href: "https://github.com/heyrapto/kaido",
+    Icon: FaGithub,
+  },
 ];
 
 export function Footer() {

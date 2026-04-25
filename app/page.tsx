@@ -13,7 +13,7 @@ export default function Page() {
   const runSearch = useNameSearch();
 
   return (
-    <main className="relative min-h-screen bg-[color:var(--bg)]">
+    <main className="grid-bracket-bg relative min-h-screen bg-[color:var(--bg)]">
       <h2 className="sr-only">
         Kaido — find available, non-boring domain names for your project using AI
       </h2>
@@ -21,10 +21,6 @@ export default function Page() {
       <TopNav />
 
       <section className="relative">
-        <div
-          aria-hidden
-          className="grid-bracket-bg pointer-events-none absolute inset-0"
-        />
         <div className="relative mx-auto flex max-w-[1240px] flex-col items-center px-8 pt-24 pb-20 text-center">
           <HeroBadge />
 
