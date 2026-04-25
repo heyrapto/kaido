@@ -125,6 +125,6 @@ Everything brand-related lives in `app/globals.css` as CSS variables; component 
 
 ## Made by
 
-Caleb Kalejaiye — [x.com/heyrapto](https://x.com/heyrapto) · [linkedin](https://www.linkedin.com/in/caleb-kalejaiye-5a0730403/) · [github](https://github.com/heyrapto)
+Caleb Kalejaiye — [x.com/heyrapto](https://x.com/heyrapto) · [github](https://github.com/heyrapto)
 
 Source: <https://github.com/heyrapto/kaido>
