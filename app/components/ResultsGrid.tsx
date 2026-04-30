@@ -5,8 +5,7 @@ import { useKaidoStore } from "@/app/store/kaido";
 import { ResultCard } from "@/app/components/ResultCard";
 import { Spinner } from "@/app/components/ui/Spinner";
 
-const MAX_ATTEMPTS = 5;
-const TARGET_AVAILABLE = 3;
+
 
 type Status = ReturnType<typeof useKaidoStore.getState>["status"];
 type Filter = "all" | "available" | "taken";
@@ -47,7 +46,7 @@ export function ResultsGrid() {
   const results = useKaidoStore((s) => s.results);
   const attempts = useKaidoStore((s) => s.attempts);
 
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("available");
 
   if (status === "idle") return null;
 
@@ -62,7 +61,7 @@ export function ResultsGrid() {
       ? results
       : results.filter((r) =>
           filter === "available"
-            ? r.status === "available"
+            ? r.status === "available" || r.status === "checking"
             : r.status === "taken",
         );
 
@@ -70,16 +69,8 @@ export function ResultsGrid() {
   const filterEmpty = total > 0 && visible.length === 0 && !showInitialSpinner;
 
   let retryNote = "";
-  if (status === "done") {
-    retryNote = attempts > 1 ? `Found after ${attempts} rounds of generation.` : "";
-  } else if (
-    status === "checking" &&
-    checkingCount === 0 &&
-    availableCount < TARGET_AVAILABLE &&
-    attempts > 0 &&
-    attempts < MAX_ATTEMPTS
-  ) {
-    retryNote = `Only ${availableCount} available so far — generating a fresh batch…`;
+  if (status === "done" && attempts > 3) {
+    retryNote = `Found after ${Math.ceil(attempts / 3)} rounds of generation.`;
   }
 
   return (

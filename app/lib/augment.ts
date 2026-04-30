@@ -5,9 +5,9 @@ import { filterNames } from "@/app/lib/quality";
 import { creativeVariants } from "@/app/lib/mutate";
 import { pickFromCorpus, pickInvented } from "@/app/lib/corpus";
 
-const MAX_NAMES = 12;
+const MAX_NAMES = 16;
 const CORPUS_PICKS = 2;
-const INVENTED_PICKS = 3;
+const INVENTED_PICKS = 6;
 
 // Same blending pipeline /api/generate used to do, now client-side so the
 // LLM call (Gemini-via-Puter, Grok-via-Puter) and the augmentation can run
