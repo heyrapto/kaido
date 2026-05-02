@@ -1,6 +1,6 @@
 export type QueryType = "idea" | "competitor" | "seed";
 
-export type DomainStatus = "checking" | "available" | "taken";
+export type DomainStatus = "checking" | "available" | "taken" | "unknown";
 
 export type DomainResult = {
   name: string;

@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useKaidoStore } from "@/app/store/kaido";
-import type { QueryType } from "@/app/lib/types";
+import type { DomainStatus, QueryType } from "@/app/lib/types";
 import { toast } from "@/app/store/toast";
 import { modal } from "@/app/store/modal";
 import { generateNames } from "@/app/lib/gemini";
@@ -15,7 +15,7 @@ const BATCH_SIZE = 3;
 const MAX_ROUNDS = 5;
 
 type AvailabilityResponse = {
-  results: { name: string; domain: string; available: boolean }[];
+  results: { name: string; domain: string; available: boolean; verified?: boolean }[];
   error?: string;
 };
 
@@ -64,10 +64,11 @@ async function runRound(
   query: string,
   queryType: QueryType,
   addCandidates: (n: string[]) => void,
-  setCardStatus: (name: string, status: "available" | "taken" | "checking") => void,
+  setCardStatus: (name: string, status: DomainStatus) => void,
   incrementAttempt: () => void,
-): Promise<{ found: number; emptyBatch: boolean }> {
+): Promise<{ found: number; emptyBatch: boolean; hadUnverified: boolean }> {
   let found = 0;
+  let hadUnverified = false;
   let notifiedPuterFallback = false;
 
   for (let i = 0; i < BATCH_SIZE; i++) {
@@ -81,7 +82,7 @@ async function runRound(
       ({ names, source } = await requestNames(query, queryType, exclude));
     } catch {
       // If both LLMs fail on first attempt of a round, bail
-      if (i === 0) return { found, emptyBatch: true };
+      if (i === 0) return { found, emptyBatch: true, hadUnverified: false };
       break;
     }
 
@@ -94,7 +95,7 @@ async function runRound(
     }
 
     if (names.length === 0) {
-      if (i === 0) return { found, emptyBatch: true };
+      if (i === 0) return { found, emptyBatch: true, hadUnverified: false };
       break;
     }
 
@@ -102,12 +103,19 @@ async function runRound(
 
     const results = await requestAvailability(names);
     for (const r of results) {
-      setCardStatus(r.name, r.available ? "available" : "taken");
-      if (r.available) found += 1;
+      const verified = r.verified ?? true;
+      const status: DomainStatus = !verified
+        ? "unknown"
+        : r.available
+          ? "available"
+          : "taken";
+      if (!verified) hadUnverified = true;
+      setCardStatus(r.name, status);
+      if (verified && r.available) found += 1;
     }
   }
 
-  return { found, emptyBatch: false };
+  return { found, emptyBatch: false, hadUnverified };
 }
 
 export function useNameSearch() {
@@ -128,11 +136,12 @@ export function useNameSearch() {
     try {
       let totalAvailable = 0;
       let round = 0;
+      let warnedRegistryPartial = false;
 
       while (round < MAX_ROUNDS) {
         round += 1;
 
-        const { found, emptyBatch } = await runRound(
+        const { found, emptyBatch, hadUnverified } = await runRound(
           query,
           state.queryType,
           addCandidates,
@@ -140,6 +149,14 @@ export function useNameSearch() {
           incrementAttempt,
         );
         totalAvailable += found;
+
+        if (hadUnverified && !warnedRegistryPartial) {
+          warnedRegistryPartial = true;
+          toast.info(
+            "Registry was slow",
+            "Some names could not be verified — they are not marked as taken.",
+          );
+        }
 
         // If LLMs returned nothing at all on the first try, stop
         if (emptyBatch && round === 1) {

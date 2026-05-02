@@ -6,17 +6,21 @@ const PILL_LABEL = {
   checking: "checking…",
   available: "✓ available",
   taken: "✗ taken",
+  unknown: "couldn't verify",
 } as const;
 
 const PILL_CLASS = {
   checking: "pill-checking",
   available: "pill-avail",
   taken: "pill-taken",
+  unknown: "pill-unknown",
 } as const;
 
 export function ResultCard({ result }: { result: DomainResult }) {
   const { name, status } = result;
   const isAvail = status === "available";
+
+  const isUnknown = status === "unknown";
 
   return (
     <div
@@ -24,7 +28,9 @@ export function ResultCard({ result }: { result: DomainResult }) {
         "rounded-[11px] border p-4 transition-colors",
         isAvail
           ? "border-[color:var(--available-border)] bg-[var(--available-surface)]"
-          : "border-[color:var(--border)] bg-[var(--surface)]",
+          : isUnknown
+            ? "border-dashed border-[color:var(--border)] bg-[color:var(--unknown-surface)]"
+            : "border-[color:var(--border)] bg-[var(--surface)]",
       ].join(" ")}
     >
       <div className="font-[family-name:var(--font-display)] text-[18px] font-medium text-[color:var(--text)]">
