@@ -26,17 +26,23 @@ function buildLabel(
   total: number,
   availableCount: number,
   checkingCount: number,
+  unknownCount: number,
 ): string {
   if (status === "generating") return "thinking…";
   if (status === "error") return "error";
+  const availPhrase = `${availableCount} available name${availableCount !== 1 ? "s" : ""} found`;
+  const unknownSuffix =
+    unknownCount > 0
+      ? ` · ${unknownCount} lookup${unknownCount !== 1 ? "s" : ""} incomplete`
+      : "";
   if (status === "checking") {
     if (checkingCount > 0) {
       return `checking ${total} name${total !== 1 ? "s" : ""}…`;
     }
-    return `${availableCount} available name${availableCount !== 1 ? "s" : ""} found`;
+    return `${availPhrase}${unknownSuffix}`;
   }
   if (status === "done") {
-    return `${availableCount} available name${availableCount !== 1 ? "s" : ""} found`;
+    return `${availPhrase}${unknownSuffix}`;
   }
   return "results";
 }
@@ -53,6 +59,7 @@ export function ResultsGrid() {
   const total = results.length;
   const availableCount = results.filter((r) => r.status === "available").length;
   const checkingCount = results.filter((r) => r.status === "checking").length;
+  const unknownCount = results.filter((r) => r.status === "unknown").length;
 
   const showInitialSpinner = status === "generating" && total === 0;
 
@@ -77,7 +84,7 @@ export function ResultsGrid() {
     <div className="mt-12 w-full text-left">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="text-[10px] uppercase tracking-[0.1em] text-[color:var(--muted)]">
-          {buildLabel(status, total, availableCount, checkingCount)}
+          {buildLabel(status, total, availableCount, checkingCount, unknownCount)}
         </div>
         {showFilter && (
           <div className="flex gap-[2px]">

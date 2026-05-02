@@ -34,6 +34,8 @@
   --taken:            #B33A2A;
   --taken-bg:         #FBF0EE;
   --checking-bg:      #F5EDE5;
+  /* Unverified / RDAP failure — tinted from muted, no new palette hex in components */
+  --unknown-surface:  color-mix(in srgb, var(--muted) 9%, var(--surface));
 
   --font-display:     'Fraunces', Georgia, 'Book Antiqua', serif;
   --font-ui:          'DM Mono', 'Courier New', monospace;
@@ -64,6 +66,7 @@
 .pill-checking { background: var(--checking-bg); color: var(--subtle); }
 .pill-avail    { background: var(--available-bg); color: var(--available); }
 .pill-taken    { background: var(--taken-bg);     color: var(--taken); }
+.pill-unknown  { background: var(--checking-bg);   color: var(--muted); }
 
 /* Grid corner-bracket background — faint blueprint marks */
 .grid-bracket-bg {
